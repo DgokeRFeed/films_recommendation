@@ -1,4 +1,4 @@
-require "film"
+require_relative "film"
 require "nokogiri"
 require "open-uri"
 
@@ -12,12 +12,11 @@ class FilmsCollection
 
     titles_array = doc.css(".titlefilm").map(&:text)
 
-    film_information_array = doc.css(".rating_rightdesc div[4]")
-    directors_array = film_information_array.css("a").map(&:text)
+    directors_array = doc.css(".rating_rightdesc div[4] a").map(&:text)
 
     release_year = doc.css("div[class=bigtext]").map do |string|
-      string.text
-      string.slice(string.size - 4, 4)
+      year = string.text
+      year.slice(year.length - 4, 4)
     end
 
     puts titles_array
