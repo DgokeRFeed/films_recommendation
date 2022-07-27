@@ -1,13 +1,16 @@
 require_relative "film"
 require "nokogiri"
-require "open-uri"
+require "net/http"
 
 class FilmsCollection
   URL = "https://www.kinonews.ru/top100/".freeze
-  FILE = "#{File.dirname(__FILE__ )}/data.html}".freeze
+  FILE = "#{File.expand_path("../..", __FILE__ )}/data/data.html".freeze
 
   def self.parse_films
-    doc = Nokogiri::HTML(URI.open(URL))
+    uri = URI.parse(URL)
+    response = Net::HTTP.get_response(uri)
+    File.write(FILE, response.body)
+    doc = Nokogiri::HTML(File.read(FILE))
     # doc.to_html(FILE)
 
     titles_array = doc.css(".titlefilm").map(&:text)
