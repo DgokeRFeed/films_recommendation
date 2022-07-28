@@ -8,11 +8,11 @@ class Film
   end
 
   def director?(director)
-    @director == director.capitalize
+    @director == director
   end
 
   def output
-    "#{@title} (#{@release_year})"
+    "#{@title} - #{@director} (#{@release_year})"
   end
 end
 
