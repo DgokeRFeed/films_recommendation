@@ -11,7 +11,7 @@ class Film
     @director == director
   end
 
-  def output
+  def to_s
     "#{@title} - #{@director} (#{@release_year})"
   end
 end

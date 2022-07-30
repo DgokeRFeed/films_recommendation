@@ -7,12 +7,16 @@ class FilmsCollection
   DATA_FROM_KINOPOISK = "#{File.expand_path("../..", __FILE__ )}/data/kinopoisk.html".freeze
 
   def self.parse_from_kinopoisk
-    unless File.exist?(DATA_FROM_KINOPOISK)
-      uri = URI.parse(KINOPOISK_URL)
-      response = Net::HTTP.get_response(uri)
+    uri = URI.parse(KINOPOISK_URL)
+    response = Net::HTTP.get_response(uri)
+    doc = Nokogiri::HTML(response.body)
+    check_tag = doc.css(".base-movie-main-info_link__YwtP1")
+
+    if check_tag.empty?
+      doc = Nokogiri::HTML(File.read(DATA_FROM_KINOPOISK))
+    else
       File.write(DATA_FROM_KINOPOISK, response.body)
     end
-    doc = Nokogiri::HTML(File.read(DATA_FROM_KINOPOISK))
 
     films_collection =
       doc.css(".base-movie-main-info_link__YwtP1").map do |tag|
@@ -27,22 +31,19 @@ class FilmsCollection
 
         Film.new(title, director, release_year)
       end
-
-    directors_list = films_collection.map(&:director).uniq.sort
-    new(films_collection, directors_list)
+    new(films_collection)
   end
 
-  def initialize(films_collection, directors_list)
+  def initialize(films_collection)
     @films_collection = films_collection
-    @directors_list = directors_list
   end
 
-  def get_recommendation(answer)
-    suitable_films = @films_collection.select { |film| film.director?(@directors_list[answer - 1]) }
-    suitable_films.sample.output
+  def get_recommendation(director_index)
+    @films_collection.select { |film| film.director?(@directors_list[director_index - 1]) }.sample
   end
 
   def print_directors_list
+    @directors_list = @films_collection.map(&:director).uniq.sort
     @directors_list.map.with_index(1) { |director, index| "#{index} - #{director}" }
   end
 end
