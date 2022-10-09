@@ -1,3 +1,4 @@
+# Класс, хранящий в себе информацию о конкретном фильме
 class Film
   attr_reader :title, :director, :release_year
 
